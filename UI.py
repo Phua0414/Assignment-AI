@@ -40,7 +40,28 @@ st.markdown(
             text-align: center;
         }
         .block-container {
-            width: 80%;
+            width: 60%;
+            padding: 2rem;
+            border-radius: 10px;
+            background-color: #f4f7fc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar .sidebar-content {
+            padding-top: 5rem;
+        }
+        .sidebar .sidebar-content .stSelectbox, .sidebar .sidebar-content .stNumberInput {
+            font-size: 16px;
+        }
+        .stSlider, .stButton {
+            font-size: 16px;
+        }
+        .stTextInput {
+            margin-bottom: 1rem;
+        }
+        .stTitle {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3a3a3a;
         }
     </style>
     """, unsafe_allow_html=True)

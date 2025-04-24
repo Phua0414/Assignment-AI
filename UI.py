@@ -149,7 +149,9 @@ if st.sidebar.button("Make Prediction"):
         feature_names = np.array(['Age Group', 'BMI Category', 'Hypertension', 'Heart Disease', 'Smoking History', 'HbA1c Level', 'Blood Glucose Level', 'Gender'])
         
         st.subheader("Feature Importance")
-        plt.figure(figsize=(10, 6))
-        plt.barh(feature_names[sorted_idx], feature_importance[sorted_idx], color='skyblue')
-        plt.xlabel('Feature Importance')
-        st.pyplot()
+        
+        # Create figure to avoid matplotlib warning
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.barh(feature_names[sorted_idx], feature_importance[sorted_idx], color='skyblue')
+        ax.set_xlabel('Feature Importance')
+        st.pyplot(fig)

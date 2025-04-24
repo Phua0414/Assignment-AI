@@ -1,12 +1,11 @@
 import streamlit as st
 import pickle
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+import requests
 
-# Function to download files from GitHub (if needed)
+# Function to download files from GitHub
 def download_file(url):
     response = requests.get(url)
     if response.status_code == 200:
@@ -14,11 +13,11 @@ def download_file(url):
     else:
         raise Exception("Error downloading file")
 
-# GitHub URLs for the model and scaler files (optional, adjust URLs if needed)
+# GitHub URLs for the model and scaler files
 model_url = 'https://github.com/Phua0414/Assignment-AI/releases/download/Tag1/all_models.pkl'
 scaler_url = 'https://github.com/Phua0414/Assignment-AI/releases/download/Tag1/scaler.pkl'
 
-# Download the model and scaler files (if you use them from GitHub)
+# Download the model and scaler files
 model_data = download_file(model_url)
 scaler_data = download_file(scaler_url)
 
@@ -33,7 +32,7 @@ model_names = list(models.keys())
 st.title("Diabetes Prediction System")
 st.write("Select a model and enter the features to predict diabetes")
 
-# Form to select model and input features
+# Wrap the form components inside a form
 with st.form(key='prediction_form'):
     # Dropdown for selecting model
     selected_model_name = st.selectbox("Select a Model", model_names)
@@ -51,7 +50,7 @@ with st.form(key='prediction_form'):
 
     # Submit button inside the form
     submit_button = st.form_submit_button("Make Prediction")
-
+    
     if submit_button:
         # Preprocess input features (encode categorical features)
         gender_mapping = {'Male': 0, 'Female': 1, 'Other': 2}
@@ -99,7 +98,3 @@ with st.form(key='prediction_form'):
             ax.barh(feature_names[sorted_idx], feature_importance[sorted_idx], color='skyblue')
             ax.set_xlabel('Feature Importance')
             st.pyplot(fig)
-
-# Optional: Add a "Reset" button if needed to clear inputs
-if st.button('Reset'):
-    st.experimental_rerun()

@@ -1,21 +1,34 @@
 import streamlit as st
 import pickle
 import numpy as np
+import requests
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 
-# Load the pre-trained models from the .pkl file
-with open('all_models.pkl', 'rb') as f:
-    models = pickle.load(f)
+# Function to download files from GitHub
+def download_file(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.content
+    else:
+        raise Exception("Error downloading file")
 
-# Load the scaler used during training
-with open('scaler.pkl', 'rb') as f:
-    scaler = pickle.load(f)
+# GitHub URLs for the model and scaler files
+model_url = 'https://github.com/Phua0414/Assignment-AI/releases/download/Tag1/all_models.pkl'
+scaler_url = 'https://github.com/Phua0414/Assignment-AI/releases/download/Tag1/scaler.pkl'
+
+# Download the model and scaler files
+model_data = download_file(model_url)
+scaler_data = download_file(scaler_url)
+
+# Load the models and scaler from the downloaded data
+models = pickle.loads(model_data)
+scaler = pickle.loads(scaler_data)
 
 # List of available models
 model_names = list(models.keys())
 
-# Model selection
+# Streamlit UI setup
 st.title("Diabetes Prediction System")
 st.sidebar.header("Choose Your Model")
 
@@ -33,7 +46,7 @@ accuracies = {
 st.sidebar.write(f"You selected: {selected_model_name}")
 st.sidebar.write(f"Accuracy: {accuracies[selected_model_name]:.2f}%")
 
-# Input Form for Features (age, BMI, blood glucose level, etc.)
+# Input Form for Features
 st.sidebar.header("Enter the Features")
 
 # Input validation for age

@@ -28,6 +28,23 @@ scaler = pickle.loads(scaler_data)
 # List of available models
 model_names = list(models.keys())
 
+# Center the content using custom CSS
+st.markdown(
+    """
+    <style>
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .block-container {
+            width: 80%;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Streamlit UI setup
 st.title("Diabetes Prediction System")
 st.sidebar.header("Choose Your Model")
@@ -123,29 +140,13 @@ if st.sidebar.button("Make Prediction"):
     result = "Diabetic" if prediction[0] == 1 else "Not Diabetic"
     st.write(f"Prediction: {result}")
 
-    # Display Evaluation Metrics (Accuracy, Confusion Matrix)
-    st.subheader(f"{selected_model_name} Evaluation Metrics")
-    
-    # You can directly evaluate your model using test data in production (no CSV needed)
-    # Instead, if you want model evaluation, use training datasets or results if available
-    # Example: 
-    # y_test = pd.read_csv('your_y_test_data.csv')
-    # X_test = pd.read_csv('your_X_test_data.csv')
-    # y_pred = selected_model.predict(X_test)
-    # accuracy = accuracy_score(y_test, y_pred)
-    # st.write(f"Accuracy: {accuracy * 100:.2f}%")
-    
-    # Display Confusion Matrix
-    # cm = confusion_matrix(y_test, y_pred)
-    # cm_display = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['No Diabetes', 'Diabetes'])
-    # cm_display.plot(cmap='Blues', values_format='d')
-    # st.pyplot()
-
-    # Feature Importance (if applicable)
+    # Display Feature Importance (if applicable)
     if hasattr(selected_model, 'feature_importances_'):
         feature_importance = selected_model.feature_importances_
-        sorted_idx = np.argsort(feature_importance)
-        feature_names = ['Age Group', 'BMI Category', 'Hypertension', 'Heart Disease', 'Smoking History', 'HbA1c Level', 'Blood Glucose Level', 'Gender']
+        sorted_idx = np.argsort(feature_importance)  # Get indices of sorted features
+        
+        # Define feature names
+        feature_names = np.array(['Age Group', 'BMI Category', 'Hypertension', 'Heart Disease', 'Smoking History', 'HbA1c Level', 'Blood Glucose Level', 'Gender'])
         
         st.subheader("Feature Importance")
         plt.figure(figsize=(10, 6))

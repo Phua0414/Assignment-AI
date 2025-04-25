@@ -4,6 +4,7 @@ import numpy as np
 import requests
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from sklearn.inspection import permutation_importance
 
 # Function to download files from GitHub
 def download_file(url):
@@ -27,6 +28,41 @@ scaler = pickle.loads(scaler_data)
 
 # List of available models
 model_names = list(models.keys())
+
+# Feature names
+feature_names = np.array([
+    'Age Group', 'BMI Category', 'Hypertension', 'Heart Disease', 
+    'Smoking History', 'HbA1c Level', 'Blood Glucose Level', 'Gender'
+])
+
+# Function to get feature importance based on model type
+def get_feature_importance(model, model_name, X_sample):
+    """Get feature importance based on model type"""
+    if model_name in ["Random Forest", "XGBoost"]:
+        # These models have feature_importances_ attribute
+        importance = model.feature_importances_
+        return importance, "Feature Importance"
+    
+    elif model_name == "Logistic Regression":
+        # For logistic regression, use coefficients (absolute values)
+        importance = np.abs(model.coef_[0])
+        return importance, "Coefficient Magnitude"
+    
+    elif model_name == "K-Nearest Neighbors":
+        # For KNN, we need to calculate permutation importance
+        # This is a simplified version - in production, you'd want to use a cached or precomputed value
+        with st.spinner("Calculating feature importance..."):
+            # Create a small sample to quickly calculate permutation importance
+            # This is just for demonstration - in practice, you'd want to precompute this
+            dummy_y = np.zeros(X_sample.shape[0])
+            perm_importance = permutation_importance(
+                model, X_sample, dummy_y, 
+                n_repeats=3, random_state=42, n_jobs=-1
+            )
+            importance = perm_importance.importances_mean
+        return importance, "Permutation Importance"
+    
+    return None, None
 
 # Center the content using custom CSS for the title and inputs
 st.markdown(
@@ -104,8 +140,28 @@ with st.container():
     # Handling prediction after form submission
     if submit_button:
         # Mapping input values to numerical
-        age_group = { "Minor": 0, "Young": 1, "Adult": 2, "Middle-Aged": 3, "Senior": 4 }["Young" if age < 25 else "Adult"]
-        bmi_category = { "Underweight": 0, "Normal": 1, "Overweight": 2, "Obesity": 3 }["Normal" if bmi < 24.9 else "Overweight"]
+        # Determine age group based on age value
+        if age < 18:
+            age_group = 0  # Minor
+        elif age < 25:
+            age_group = 1  # Young
+        elif age < 45:
+            age_group = 2  # Adult
+        elif age < 60:
+            age_group = 3  # Middle-Aged
+        else:
+            age_group = 4  # Senior
+            
+        # Determine BMI category based on BMI value
+        if bmi < 18.5:
+            bmi_category = 0  # Underweight
+        elif bmi < 25:
+            bmi_category = 1  # Normal
+        elif bmi < 30:
+            bmi_category = 2  # Overweight
+        else:
+            bmi_category = 3  # Obesity
+            
         smoking_history_mapping = { 'never': 0, 'No Info': 1, 'current': 2, 'former': 3, 'ever': 4, 'not current': 5 }
         hypertension = 0 if hypertension == "No" else 1
         heart_disease = 0 if heart_disease == "No" else 1
@@ -114,8 +170,9 @@ with st.container():
 
         # Input features array
         input_features = np.array([[
-            age_group, bmi_category, hypertension, heart_disease,
-            smoking_history, hbA1c_level, blood_glucose_level, gender
+            gender, hypertension, heart_disease,
+            smoking_history, hbA1c_level, blood_glucose_level, 
+            age_group, bmi_category
         ]])
 
         # Apply scaling to input features
@@ -130,18 +187,25 @@ with st.container():
         result = "Diabetic" if prediction[0] == 1 else "Not Diabetic"
         st.write(f"Prediction: {result}")
 
-        # Display Feature Importance if available
-        if hasattr(selected_model, 'feature_importances_'):
-            feature_importance = selected_model.feature_importances_
-            sorted_idx = np.argsort(feature_importance)
-
-            feature_names = np.array([
-                'Age Group', 'BMI Category', 'Hypertension', 'Heart Disease', 
-                'Smoking History', 'HbA1c Level', 'Blood Glucose Level', 'Gender'
-            ])
-
-            st.subheader("Feature Importance")
+        # Display Feature Importance for all models
+        importance, importance_type = get_feature_importance(selected_model, selected_model_name, input_features_scaled)
+        
+        if importance is not None:
+            st.subheader(f"{importance_type}")
+            sorted_idx = np.argsort(importance)
+            
+            # Create the visualization
             fig, ax = plt.subplots(figsize=(10, 6))
-            ax.barh(feature_names[sorted_idx], feature_importance[sorted_idx], color='skyblue')
-            ax.set_xlabel('Feature Importance')
+            
+            # Use different colors based on model
+            colors = {
+                "Random Forest": "skyblue",
+                "XGBoost": "lightgreen",
+                "Logistic Regression": "orange",
+                "K-Nearest Neighbors": "salmon"
+            }
+            
+            ax.barh(feature_names[sorted_idx], importance[sorted_idx], color=colors[selected_model_name])
+            ax.set_xlabel(importance_type)
+            ax.set_title(f"{selected_model_name} - {importance_type}")
             st.pyplot(fig)

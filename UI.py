@@ -12,8 +12,8 @@ def download_file(url):
     else:
         raise Exception("Download failed.")
 
-model_url = 'https://github.com/Phua0414/Test/releases/download/Tag-1/all_models.pkl'
-scaler_url = 'https://github.com/Phua0414/Test/releases/download/Tag-1/scaler.pkl'
+model_url = 'https://github.com/Phua0414/Assignment-AI/releases/download/Tag-1/all_models.pkl'
+scaler_url = 'https://github.com/Phua0414/Assignment-AI/releases/download/Tag-1/scaler.pkl'
 
 # 📥 Load model and scaler
 models = pickle.loads(download_file(model_url))

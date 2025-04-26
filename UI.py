@@ -76,9 +76,6 @@ if submitted:
     prediction = model.predict(scaled_input)[0]
     probability = model.predict_proba(scaled_input)[0][1]
 
-    # --------------------------
-    # 🎯 Display Results
-    # --------------------------
     st.subheader("Prediction Result")
     if prediction == 1:
         st.error(f"**Prediction: Diabetic** (Risk: {probability*100:.2f}%)")

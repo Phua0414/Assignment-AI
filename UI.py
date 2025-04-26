@@ -89,10 +89,10 @@ if submitted:
 
     st.subheader("Risk Interpretation")
     if probability < 0.3:
-        st.success("🟢 Low Risk (0% - 30%)")
+        st.success("Low Risk (0% - 30%)")
     elif probability < 0.7:
-        st.warning("🟠 Moderate Risk (30% - 70%)")
+        st.warning("Moderate Risk (30% - 70%)")
     else:
-        st.error("🔴 High Risk (70% - 100%)")
+        st.error("High Risk (70% - 100%)")
 
     st.caption("This prediction is for informational purposes only and does not replace medical advice.")
